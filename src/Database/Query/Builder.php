@@ -339,6 +339,16 @@ class Builder extends QueryBuilder
         // Merge the expression back to the query
         if ($expression && $expression->isNotEmpty()) {            
             $columns = $expression->merge($columns)->all();
+
+            $mergedColumns = [];
+            foreach($columns as $column){
+                if(!in_array($column, $mergedColumns)){
+                    $mergedColumns[] = $column;
+                }
+            }
+            
+            $columns = $mergedColumns;
+
         }
 
         $this->columns = $columns;
@@ -355,6 +365,10 @@ class Builder extends QueryBuilder
     protected function fixFlatColumns()
     {
         $columns = $this->columns;
+
+        if($columns === null){
+            $columns = ['*'];
+        }
 
         $orgColumns = collect((array) $columns)->mapToGroups(function ($item, $key) {
             if (is_a($item, Expression::class)) {
